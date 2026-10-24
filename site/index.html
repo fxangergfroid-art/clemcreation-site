@@ -303,6 +303,9 @@ dialog::backdrop{background:rgba(40,25,20,.45)}
 .poursuivre{align-self:flex-start}
 .bulle-ajout{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);background:var(--cacao);color:var(--fond);padding:10px 18px;border-radius:999px;font-weight:700;font-size:.95rem;box-shadow:0 10px 24px var(--ombre);opacity:0;pointer-events:none;transition:.25s;z-index:30;max-width:calc(100vw - 32px);text-align:center}
 .bulle-ajout.on{opacity:1;transform:translate(-50%,0)}
+.fichier-apercu{display:flex;align-items:center;gap:10px;margin-top:6px;font-size:.88rem;font-weight:600;color:var(--cacao-doux)}
+.fichier-apercu img{width:56px;height:56px;object-fit:cover;border-radius:8px;border:1px solid var(--trait)}
+input[type=file]{padding:8px;font-size:.92rem}
 </style>
 </head>
 <body>
@@ -454,6 +457,7 @@ dialog::backdrop{background:rgba(40,25,20,.45)}
           <div class="champ"><label for="f-nom">Votre nom</label><input id="f-nom" autocomplete="name"></div>
           <div class="champ"><label for="f-contact">Votre e-mail</label><input id="f-contact" type="email" autocomplete="email"></div>
           <div class="champ large"><label for="f-details">Autres détails</label><textarea id="f-details" placeholder="Quantité, taille, photo à imprimer…"></textarea></div>
+          <div class="champ large"><label for="f-fichier">Image, photo ou dessin (facultatif)</label><input id="f-fichier" type="file" accept="image/*,application/pdf"><small class="aide" style="margin:2px 0 0">JPG, PNG ou PDF. Les grandes photos sont allégées automatiquement.</small></div>
         </div>
         <div class="actions">
           <button type="button" class="btn" id="envoyer-mail">Envoyer ma demande</button>
@@ -554,11 +558,12 @@ dialog::backdrop{background:rgba(40,25,20,.45)}
   </div>
 </div></dialog>
 
-<form name="demande-sur-mesure" data-netlify="true" netlify-honeypot="champ-robot" hidden>
+<form name="demande-sur-mesure" enctype="multipart/form-data" data-netlify="true" netlify-honeypot="champ-robot" hidden>
   <input name="nom"><input name="email"><input name="creation"><input name="prenom"><input name="theme"><input name="occasion"><input name="date"><textarea name="details"></textarea><input name="champ-robot">
-</form>
-<form name="commande-boutique" data-netlify="true" netlify-honeypot="champ-robot" hidden>
+<input type="file" name="fichier"></form>
+<form name="commande-boutique" enctype="multipart/form-data" data-netlify="true" netlify-honeypot="champ-robot" hidden>
   <input name="statut"><input name="nom"><input name="email"><input name="telephone"><input name="reception"><textarea name="adresse"></textarea><input name="total"><textarea name="commande"></textarea><input name="paypal"><input name="message"><input name="champ-robot">
+  <input type="file" name="fichier1"><input type="file" name="fichier2"><input type="file" name="fichier3"><input type="file" name="fichier4"><input type="file" name="fichier5">
 </form>
 
 <script>
@@ -806,7 +811,13 @@ dialog::backdrop{background:rgba(40,25,20,.45)}
     if(!v("f-nom")){ dire("Indiquez votre nom."); document.getElementById("f-nom").focus(); return; }
     if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v("f-contact"))){ dire("Indiquez une adresse e-mail valide pour que Clem puisse vous répondre."); document.getElementById("f-contact").focus(); return; }
     var bt=this; bt.disabled=true; dire("Envoi en cours…");
-    var netlify=fetch("/",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:new URLSearchParams({"form-name":"demande-sur-mesure",nom:v("f-nom"),email:v("f-contact"),creation:v("f-produit"),prenom:v("f-prenom"),theme:v("f-theme"),occasion:v("f-occasion"),date:v("f-date"),details:v("f-details")}).toString()})
+    var chMes={"form-name":"demande-sur-mesure",nom:v("f-nom"),email:v("f-contact"),creation:v("f-produit"),prenom:v("f-prenom"),theme:v("f-theme"),occasion:v("f-occasion"),date:v("f-date"),details:v("f-details")};
+    var ficMes=document.getElementById("f-fichier").files[0];
+    var netlify=(ficMes?window.__alleger(ficMes):Promise.resolve(null)).then(function(f){
+      if(!f) return fetch("/",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:new URLSearchParams(chMes).toString()});
+      var fd=new FormData(); Object.keys(chMes).forEach(function(k){ fd.append(k,chMes[k]); }); fd.append("fichier",f.blob,f.nom);
+      return fetch("/",{method:"POST",body:fd});
+    })
       .then(function(r){ return r.ok; }).catch(function(){ return false; });
     netlify.then(function(ok){
       bt.disabled=false;
@@ -850,15 +861,46 @@ dialog::backdrop{background:rgba(40,25,20,.45)}
 
   // Ajout au panier
   var courant=null, q=1;
+  // ---- Images envoyées par le client (photo, dessin, logo…) ----
+  var FICHIERS={}, nbFic=0;
+  function aFichier(p){ return p.tech==="sublimation" || (p.champs||[]).some(function(c){ return c.id==="texte"||c.id==="prenom"; }); }
+  function libFichier(p){ return "Image, photo ou dessin "+(p.tech==="sublimation"?"à imprimer":p.tech==="3d"?"à reproduire":"à graver")+" (facultatif)"; }
+  // Allège les grandes photos (max 2400 px, JPEG) pour rester sous la limite d'envoi
+  window.__alleger=function(f){
+    return new Promise(function(ok){
+      var nom=(f.name||"image").replace(/[^\w.\-]+/g,"_").slice(-60);
+      if(!/^image\/(jpeg|png|webp|heic|heif)/.test(f.type) || f.size<900000) return ok({blob:f,nom:nom});
+      var url=URL.createObjectURL(f), im=new Image();
+      im.onload=function(){
+        var k=Math.min(1,2400/Math.max(im.width,im.height)), c=document.createElement("canvas");
+        c.width=Math.round(im.width*k); c.height=Math.round(im.height*k);
+        var g=c.getContext("2d"); g.fillStyle="#fff"; g.fillRect(0,0,c.width,c.height); g.drawImage(im,0,0,c.width,c.height);
+        URL.revokeObjectURL(url);
+        c.toBlob(function(b){ ok(b&&b.size<f.size?{blob:b,nom:nom.replace(/\.\w+$/,"")+".jpg"}:{blob:f,nom:nom}); },"image/jpeg",0.88);
+      };
+      im.onerror=function(){ URL.revokeObjectURL(url); ok({blob:f,nom:nom}); };
+      im.src=url;
+    });
+  };
+  function apercuFichier(){
+    var f=this.files[0], a=$("a-fichier-apercu"); $("ajout-err").hidden=true;
+    if(!f){ a.hidden=true; a.innerHTML=""; return; }
+    if(!/^image\/|application\/pdf/.test(f.type)){ this.value=""; a.hidden=true; $("ajout-err").textContent="Choisissez une image (JPG, PNG…) ou un PDF."; $("ajout-err").hidden=false; return; }
+    if(f.type==="application/pdf"&&f.size>5e6){ this.value=""; a.hidden=true; $("ajout-err").textContent="Ce PDF est trop lourd (5 Mo maximum). Envoyez-le plutôt par e-mail à clemcreation@hotmail.fr."; $("ajout-err").hidden=false; return; }
+    a.hidden=false;
+    a.innerHTML=/^image\//.test(f.type)?'<img alt="Aperçu de votre image" src="'+URL.createObjectURL(f)+'"><span>'+esc(f.name)+'</span>':'<span>📄 '+esc(f.name)+'</span>';
+  }
+
   window.__ouvrirAjout = function(i){
     courant=i; q=1; var p=produits[i];
     $("ajout-titre").textContent = p.nom;
     $("ajout-champs").innerHTML = (window.__aFinition(p)?'<fieldset class="finition"><legend>Couleur</legend>'+
         '<label><input type="radio" name="finition" value="0" checked><span>Couleur classique<b id="fin-0"></b></span></label>'+
         '<label><input type="radio" name="finition" value="1"><span>Multicolore / phosphorescent<b id="fin-1"></b></span></label></fieldset>':'') + (p.options?'<div class="champ"><label for="a-option">'+(p.variantes?'Modèle':'Version')+'</label><select id="a-option">'+p.options.map(function(o,k){return '<option value="'+k+'">'+esc(o.label)+(o.prix?' – '+euros(o.prix):'')+'</option>';}).join("")+'</select></div>':'') + (p.champs||[]).map(function(c){
-      if(c.type==="note") return '<p class="aide" style="margin:0">'+esc(c.label)+'</p>';
+      if(c.type==="note") return aFichier(p)&&c.id==="photo" ? "" : '<p class="aide" style="margin:0">'+esc(c.label)+'</p>';
       return '<div class="champ"><label for="a-'+c.id+'">'+esc(c.label)+'</label><input id="a-'+c.id+'" data-champ="'+c.id+'" data-label="'+esc(c.label)+'"'+(c.requis?' required':'')+'></div>';
-    }).join("");
+    }).join("") + (aFichier(p)?'<div class="champ"><label for="a-fichier">'+libFichier(p)+'</label><input id="a-fichier" type="file" accept="image/*,application/pdf"><small class="aide" style="margin:2px 0 0">JPG, PNG ou PDF. Facultatif : vous pouvez aussi l\'envoyer plus tard par e-mail.</small><div class="fichier-apercu" id="a-fichier-apercu" hidden></div></div>':'');
+    if($("a-fichier")) $("a-fichier").addEventListener("change",apercuFichier);
     $("ajout-dims").textContent = p.dims ? "📏 "+p.dims : "";
     $("ajout-desc").textContent = p.desc || "";
     var s=$("a-option");
@@ -885,21 +927,24 @@ dialog::backdrop{background:rgba(40,25,20,.45)}
   $("form-ajout").addEventListener("submit",function(e){ if(!e.submitter||!e.submitter.classList.contains("fermer")){ e.preventDefault(); $("ajout-ok").click(); } });
   $("ajout-ok").addEventListener("click",function(){
     var details=[], manque=null;
+    var ficChoisi=$("a-fichier")&&$("a-fichier").files[0];
     $("ajout-champs").querySelectorAll("input[data-champ]").forEach(function(inp){
-      var v=inp.value.trim(); if(inp.required && !v && !manque) manque=inp;
+      var v=inp.value.trim(); if(inp.required && !v && !manque && !ficChoisi) manque=inp;
       if(v) details.push(inp.dataset.label.replace(/ \(facultatif\)/,"")+" : "+v);
     });
-    if(manque){ $("ajout-err").textContent="Indiquez « "+manque.dataset.label+" » pour personnaliser votre création."; $("ajout-err").hidden=false; manque.focus(); return; }
+    if(manque){ $("ajout-err").textContent="Indiquez « "+manque.dataset.label+" » (ou ajoutez une image) pour personnaliser votre création."; $("ajout-err").hidden=false; manque.focus(); return; }
+    var fic=null; if(ficChoisi){ nbFic++; fic={id:"f"+Date.now()+nbFic,nom:ficChoisi.name}; FICHIERS[fic.id]=ficChoisi; details.push("Image : "+ficChoisi.name); }
     var p=produits[courant];
-    (p.champs||[]).forEach(function(c){ if(c.type==="note") details.push(c.label); });
+    (p.champs||[]).forEach(function(c){ if(c.type==="note" && !(aFichier(p)&&c.id==="photo")) details.push(c.label); });
     var s=$("a-option"); if(p.options&&s) details.unshift((p.variantes?"Modèle : ":"")+p.options[+s.value].label);
     if(window.__aFinition(p)) details.unshift(multi()?"Multicolore / phosphorescent":"Couleur classique");
     var d=details.join(" · "), prix=prixCourant();
-    var ex=panier.find(function(l){ return l.i===courant && l.d===d; });
+    var ex=fic?null:panier.find(function(l){ return l.i===courant && l.d===d && !l.fic; });
     var perso = p.tech==="sublimation" || Array.prototype.some.call($("ajout-champs").querySelectorAll("input[data-champ]"),function(inp){
       return inp.value.trim() && (["prenom","texte","theme"].indexOf(inp.dataset.champ)>=0 || /prénom/i.test(inp.dataset.label));
     });
-    if(ex) ex.q+=q; else panier.push({i:courant,q:q,d:d,p:prix,perso:perso,multi:multi()});
+    if(fic) perso=true;
+    if(ex) ex.q+=q; else panier.push({i:courant,q:q,d:d,p:prix,perso:perso,multi:multi(),fic:fic});
     sauver(); majBouton(); $("dlg-ajout").close();
     if(continuer){ continuer=false; var b=$("bulle-ajout"); b.textContent="✓ "+p.nom+" ajouté au panier"; b.classList.add("on"); clearTimeout(b._t); b._t=setTimeout(function(){ b.classList.remove("on"); },2600); }
     else ouvrirPanier();
@@ -914,7 +959,7 @@ dialog::backdrop{background:rgba(40,25,20,.45)}
     $("promesse-panier").hidden = !aPerso();
     $("panier-lignes").innerHTML = panier.length ? panier.map(function(l,k){
       var p=produits[l.i];
-      return '<div class="ligne"><div><strong>'+esc(p.nom)+'</strong>'+(l.d?'<small>'+esc(l.d)+'</small>':'')+
+      return '<div class="ligne"><div><strong>'+esc(p.nom)+'</strong>'+(l.d?'<small>'+esc(l.d)+'</small>':'')+(l.fic?'<small>'+(FICHIERS[l.fic.id]?'📎 Image jointe à la commande':'⚠️ Image à renvoyer : Clem vous la demandera par e-mail')+'</small>':'')+
         '<div class="qte" style="margin-top:8px"><button type="button" data-l="'+k+'" data-d="-1" aria-label="Moins">−</button><span>'+l.q+'</span><button type="button" data-l="'+k+'" data-d="1" aria-label="Plus">+</button></div></div>'+
         '<div class="droite"><strong>'+euros(pu(l)*l.q)+'</strong><button type="button" class="suppr" data-suppr="'+k+'">Retirer</button></div></div>';
     }).join("") : '<p class="aide">Votre panier est vide. Ajoutez une création depuis la boutique.</p>';
@@ -976,9 +1021,24 @@ dialog::backdrop{background:rgba(40,25,20,.45)}
       reception:v("c-recep"), adresse:v("c-recep")==="Retrait"?"":v("c-adresse"), total:euros(total()),
       commande:numero+"\n"+lignesCommande().join("\n")+(port()?"\n• Frais d'expédition Colissimo, colis d'environ "+poidsTexte()+" ("+euros(port())+")":""), paypal:[lienPaypal,infoPaypal].filter(Boolean).join(" · "), message:v("c-note")
     };
-    var netlify = fetch("/",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:new URLSearchParams(champs).toString()})
+    var lignesFic=panier.filter(function(l){ return l.fic; });
+    if(!lignesFic.length) return fetch("/",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:new URLSearchParams(champs).toString()})
       .then(function(r){ return r.ok; }).catch(function(){ return false; });
-    return netlify;
+    // Avec images : envoi en plusieurs parties (5 images maximum, 7 Mo au total)
+    var dispo=lignesFic.filter(function(l){ return FICHIERS[l.fic.id]; }).slice(0,5), manquants=lignesFic.filter(function(l){ return dispo.indexOf(l)<0; });
+    return Promise.all(dispo.map(function(l){ return window.__alleger(FICHIERS[l.fic.id]); })).then(function(fs){
+      var fd=new FormData(), total=0, notes=[];
+      Object.keys(champs).forEach(function(k){ if(k!=="commande") fd.append(k,champs[k]); });
+      fs.forEach(function(f,k){
+        var l=dispo[k], nom=numero+"_"+(k+1)+"_"+f.nom;
+        if(total+f.blob.size>7e6){ manquants.push(l); return; }
+        total+=f.blob.size; fd.append("fichier"+(k+1),f.blob,nom);
+        notes.push("📎 Image "+(k+1)+" (fichier"+(k+1)+") : "+produits[l.i].nom+" – "+l.fic.nom);
+      });
+      manquants.forEach(function(l){ notes.push("⚠️ Image à demander par e-mail : "+produits[l.i].nom+" – "+l.fic.nom); });
+      fd.append("commande",champs.commande+(notes.length?"\n\n"+notes.join("\n"):""));
+      return fetch("/",{method:"POST",body:fd}).then(function(r){ return r.ok; });
+    }).catch(function(){ return false; });
   }
   function terminer(texte){
     panier=[]; sauver(); majBouton();
