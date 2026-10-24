@@ -282,7 +282,8 @@ dialog::backdrop{background:rgba(40,25,20,.45)}
   .grille{grid-template-columns:1fr 1fr;gap:10px}
   .produit{border-radius:14px}
   .produit .corps{padding:9px 10px 10px;gap:3px}
-  .produit .tech,.produit .desc,.produit .dims,.produit .finition-note{display:none}
+  .produit .tech,.produit .desc,.produit .dims{display:none}
+  .produit .finition-note{font-size:.74rem;line-height:1.25}
   .produit h3{font-size:.98rem;line-height:1.2;cursor:pointer}
   .produit .pied{flex-direction:column;align-items:stretch;gap:6px;margin-top:auto;padding-top:6px}
   .produit .pied .prix{font-size:1.05rem}
@@ -698,12 +699,17 @@ dialog::backdrop{background:rgba(40,25,20,.45)}
   window.__produits=produits; window.__euros=euros;
   var grille=document.getElementById("grille"), vide=document.getElementById("vide");
   function patte(){return '<svg aria-hidden="true"><use href="#patte"/></svg>';}
+  function prixMulti(p){
+    var ps=(p.options&&p.options.length?p.options.map(function(o){return o.prix||p.prix;}):[p.prix]).filter(Boolean);
+    var m=Math.min.apply(null,ps), mx=Math.max.apply(null,ps), maj=function(x){ return Math.round(x*(1+window.__MAJ_COULEUR)*100)/100; };
+    return (mx>m?"dès ":"")+euros(maj(m));
+  }
   function carte(p){
       var n=p.imgs.length;
       return '<article class="produit" data-i="'+produits.indexOf(p)+'"><div class="photo"><div class="piste">'+p.imgs.map(function(s,k){ return '<img src="'+s+'" alt="'+p.nom+(n>1?' – modèle '+(k+1):'')+'" loading="lazy">'; }).join('')+'</div>'+
         (n>1?'<button type="button" class="nav prec" data-nav="-1" aria-label="Photo précédente">‹</button><button type="button" class="nav suiv" data-nav="1" aria-label="Photo suivante">›</button><span class="compteur">1 / '+n+'</span>':'')+
         '<span class="tampon"><span>'+patte()+'Validé par le chef</span></span></div>'+
-        '<div class="corps"><span class="tech">'+p.techNom+'</span><h3>'+p.nom+'</h3><p class="desc">'+p.desc+'</p>'+(p.dims?'<p class="dims">📏 '+p.dims+'</p>':'')+(n>1?'<p class="dims">📷 '+n+' modèles : faites défiler les photos</p>':'')+(window.__aFinition(p)?'<span class="finition-note">✨ Existe aussi en multicolore / phosphorescent (+40 %)</span>':'')+
+        '<div class="corps"><span class="tech">'+p.techNom+'</span><h3>'+p.nom+'</h3><p class="desc">'+p.desc+'</p>'+(p.dims?'<p class="dims">📏 '+p.dims+'</p>':'')+(n>1?'<p class="dims">📷 '+n+' modèles : faites défiler les photos</p>':'')+(window.__aFinition(p)?'<span class="finition-note">✨ Multicolore / phosphorescent : '+prixMulti(p)+'</span>':'')+
         '<div class="pied"><span class="prix">'+(p.prixTexte||(p.prix?euros(p.prix)+(p.unite||''):'Prix sur demande'))+'</span>'+(p.prix?'<button class="btn small" data-ajout="'+produits.indexOf(p)+'"><span>Ajouter<span class="l-long"> au panier</span></span></button>':'<button class="btn small ghost" data-modele="'+p.nom+'" data-tech="'+p.tech+'">Je le veux</button>')+'</div></div></article>';
   }
   function rendu(f){
@@ -887,7 +893,7 @@ dialog::backdrop{background:rgba(40,25,20,.45)}
     var p=produits[courant];
     (p.champs||[]).forEach(function(c){ if(c.type==="note") details.push(c.label); });
     var s=$("a-option"); if(p.options&&s) details.unshift((p.variantes?"Modèle : ":"")+p.options[+s.value].label);
-    if(window.__aFinition(p)) details.unshift(multi()?"Multicolore / phosphorescent (+40 %)":"Couleur classique");
+    if(window.__aFinition(p)) details.unshift(multi()?"Multicolore / phosphorescent":"Couleur classique");
     var d=details.join(" · "), prix=prixCourant();
     var ex=panier.find(function(l){ return l.i===courant && l.d===d; });
     var perso = p.tech==="sublimation" || Array.prototype.some.call($("ajout-champs").querySelectorAll("input[data-champ]"),function(inp){
