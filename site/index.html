@@ -306,6 +306,17 @@ dialog::backdrop{background:rgba(40,25,20,.45)}
 .fichier-apercu{display:flex;align-items:center;gap:10px;margin-top:6px;font-size:.88rem;font-weight:600;color:var(--cacao-doux)}
 .fichier-apercu img{width:56px;height:56px;object-fit:cover;border-radius:8px;border:1px solid var(--trait)}
 input[type=file]{padding:8px;font-size:.92rem}
+.bandeau-noel{background:#2F5D50;color:#fff}
+.bandeau-in{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding-top:10px;padding-bottom:10px}
+.bandeau-in p{margin:0;font-size:.98rem}
+.bandeau-noel .btn{background:#fff;border-color:#fff;color:#2F5D50}
+.filtre-noel{border-color:#2F5D50;color:#2F5D50}
+.filtre-noel[aria-pressed="true"]{background:#2F5D50;border-color:#2F5D50;color:#fff}
+.option-cadeau{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:2px dashed var(--trait);border-radius:12px;cursor:pointer;font-weight:600}
+.option-cadeau input{width:20px;height:20px;margin:2px 0 0;flex:0 0 auto;accent-color:var(--rose)}
+.option-cadeau b{color:var(--rose)}
+.option-cadeau small{display:block;font-weight:600;color:var(--cacao-doux);font-size:.85rem}
+@media (max-width:640px){.bandeau-in p{font-size:.88rem}.bandeau-in{padding-top:8px;padding-bottom:8px;gap:8px}}
 </style>
 </head>
 <body>
@@ -326,6 +337,12 @@ input[type=file]{padding:8px;font-size:.92rem}
   </div>
 </header>
 
+<div class="bandeau-noel" id="bandeau-noel" hidden>
+  <div class="wrap bandeau-in">
+    <p><strong>🎄 Noël approche !</strong> Pour recevoir vos créations personnalisées à temps, commandez avant le <strong id="date-noel"></strong>.</p>
+    <a class="btn small" href="#creations" id="voir-noel">Voir les idées cadeaux</a>
+  </div>
+</div>
 <main id="accueil">
   <section class="hero">
     <div class="wrap">
@@ -392,6 +409,7 @@ input[type=file]{padding:8px;font-size:.92rem}
         <button class="filtre" aria-pressed="false" data-f="3d">Impression 3D</button>
         <button class="filtre" aria-pressed="false" data-f="bois">Bois &amp; laser</button>
         <button class="filtre" aria-pressed="false" data-f="noel">🎄 Boules de Noël</button>
+        <button class="filtre filtre-noel" aria-pressed="false" data-f="idees-noel">🎁 Idées cadeaux Noël</button>
       </div>
       <nav class="sous-filtres" id="sous-filtres" aria-label="Rubriques" hidden></nav>
       <div class="grille" id="grille"></div>
@@ -523,6 +541,7 @@ input[type=file]{padding:8px;font-size:.92rem}
   <button type="button" class="btn ghost small poursuivre" data-poursuivre>← Poursuivre mes achats</button>
   <p class="aide" style="margin:0">Retrait sur place gratuit. Envoi par Colissimo : frais calculés selon le poids du colis et ajoutés automatiquement au total.</p>
   <p class="promesse-mini" id="promesse-panier" hidden>✏️ Pour vos articles personnalisés, vous recevrez une maquette par e-mail à valider avant la fabrication.</p>
+  <label class="option-cadeau"><input type="checkbox" id="c-cadeau"><span>🎁 Emballage cadeau <b id="prix-cadeau"></b><small>Papier et ruban, prêt à offrir</small></span></label>
   <p class="etape-cmd">1. Vos coordonnées</p>
   <div class="champ"><label for="c-nom">Nom et prénom</label><input id="c-nom" autocomplete="name"></div>
   <div class="champ"><label for="c-email">E-mail</label><input id="c-email" type="email" autocomplete="email"></div>
@@ -717,8 +736,19 @@ input[type=file]{padding:8px;font-size:.92rem}
         '<div class="corps"><span class="tech">'+p.techNom+'</span><h3>'+p.nom+'</h3><p class="desc">'+p.desc+'</p>'+(p.dims?'<p class="dims">📏 '+p.dims+'</p>':'')+(n>1?'<p class="dims">📷 '+n+' modèles : faites défiler les photos</p>':'')+(window.__aFinition(p)?'<span class="finition-note">✨ Multicolore / phosphorescent : '+prixMulti(p)+'</span>':'')+
         '<div class="pied"><span class="prix">'+(p.prixTexte||(p.prix?euros(p.prix)+(p.unite||''):'Prix sur demande'))+'</span>'+(p.prix?'<button class="btn small" data-ajout="'+produits.indexOf(p)+'"><span>Ajouter<span class="l-long"> au panier</span></span></button>':'<button class="btn small ghost" data-modele="'+p.nom+'" data-tech="'+p.tech+'">Je le veux</button>')+'</div></div></article>';
   }
+  // Sélection « Idées cadeaux Noël » : cadeaux personnalisés, déco de Noël, puis boules
+  var CADEAUX_NOEL=["Mug personnalisé 330 ml","Puzzle photo personnalisé","Plaque photo en aluminium","Gourde personnalisée 750 ml","Prénoms en double écriture","Arbre de vie","Veilleuse gravée","Planche apéro à manche","Grande planche apéro ronde","Boîte gourmande ou boîte à thé","Prénom multicolore","Tirelire Cheval","Pieuvre articulée"];
+  function groupeNoel(p){
+    if(p.tech==="noel") return "Boules de Noël en bois";
+    if(/no[eë]l/i.test(p.groupe)) return "Déco de Noël";
+    if(CADEAUX_NOEL.indexOf(p.nom)>=0) return "Cadeaux personnalisés à offrir";
+    return null;
+  }
+  var ORDRE_NOEL=["Cadeaux personnalisés à offrir","Déco de Noël","Boules de Noël en bois"];
   function rendu(f){
-    var tous=produits.filter(function(p){return f==="tout"||p.tech===f;});
+    var tous=f==="idees-noel"
+      ? produits.filter(groupeNoel).sort(function(a,b){ return ORDRE_NOEL.indexOf(groupeNoel(a))-ORDRE_NOEL.indexOf(groupeNoel(b)) || (CADEAUX_NOEL.indexOf(a.nom)-CADEAUX_NOEL.indexOf(b.nom)); })
+      : produits.filter(function(p){return f==="tout"||p.tech===f;});
     var liste=tous.filter(function(p){return p.img;}), autres=tous.filter(function(p){return !p.img;});
     var la=document.getElementById("aussi");
     la.hidden=!autres.length;
@@ -730,10 +760,11 @@ input[type=file]{padding:8px;font-size:.92rem}
     var html="", chips=[], tech0=null, grp0=null;
     liste.forEach(function(p){
       if(f==="tout" && p.tech!==tech0){ html+='<h3 class="rubrique-cat">'+TITRES[p.tech]+'</h3>'; tech0=p.tech; grp0=null; }
-      if(p.groupe!==grp0 && !(f==="noel")){
-        var id="g-"+p.tech+"-"+p.groupe.normalize("NFD").replace(/[^a-zA-Z0-9]+/g,"-").toLowerCase();
-        html+='<h4 class="rubrique" id="'+id+'">'+p.groupe+'</h4>'; grp0=p.groupe;
-        if(f!=="tout") chips.push('<a href="#'+id+'">'+p.groupe+'</a>');
+      var gp=f==="idees-noel"?groupeNoel(p):p.groupe;
+      if(gp!==grp0 && !(f==="noel")){
+        var id="g-"+(f==="idees-noel"?"noel":p.tech)+"-"+gp.normalize("NFD").replace(/[^a-zA-Z0-9]+/g,"-").toLowerCase();
+        html+='<h4 class="rubrique" id="'+id+'">'+gp+'</h4>'; grp0=gp;
+        if(f!=="tout") chips.push('<a href="#'+id+'">'+gp+'</a>');
       }
       html+=carte(p);
     });
@@ -751,6 +782,15 @@ input[type=file]{padding:8px;font-size:.92rem}
       b.scrollIntoView({block:"nearest",inline:"center"});
     });
   });
+  // Bandeau Noël : visible jusqu'à la date limite de commande, puis il disparaît tout seul
+  var LIMITE_NOEL=new Date(new Date().getFullYear(),11,10,23,59);  // 10 décembre
+  (function(){
+    var auj=new Date(), deb=new Date(auj.getFullYear(),9,15);  // à partir du 15 octobre
+    if(auj<deb||auj>LIMITE_NOEL) return;
+    document.getElementById("date-noel").textContent=LIMITE_NOEL.toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long"});
+    document.getElementById("bandeau-noel").hidden=false;
+    document.getElementById("voir-noel").addEventListener("click",function(){ var f=document.querySelector('.filtre[data-f="idees-noel"]'); if(f) setTimeout(function(){ f.click(); },0); });
+  })();
   document.querySelectorAll(".lien-cat").forEach(function(a){
     a.addEventListener("click",function(e){ var f=document.querySelector('.filtre[data-f="'+a.dataset.cat+'"]'); if(f) f.click(); });
   });
@@ -855,7 +895,9 @@ input[type=file]{padding:8px;font-size:.92rem}
     return GRILLE[GRILLE.length-1][1];
   }
   function poidsTexte(){ var w=poidsColis(); return w<1000 ? Math.ceil(w/10)*10+" g" : (Math.ceil(w/100)/10).toString().replace(".",",")+" kg"; }
-  function total(){ return r2(sousTotal()+port()); }
+  var PRIX_EMBALLAGE_CADEAU=2;  // € – à modifier ici si besoin
+  function cadeau(){ return panier.length && $("c-cadeau").checked ? PRIX_EMBALLAGE_CADEAU : 0; }
+  function total(){ return r2(sousTotal()+port()+cadeau()); }
   function nb(){ return panier.reduce(function(t,l){ return t+l.q; },0); }
   function majBouton(){ $("panier-nb").textContent = nb(); $("panier-btn").hidden = nb()===0; }
 
@@ -984,6 +1026,8 @@ input[type=file]{padding:8px;font-size:.92rem}
   $("panier-btn").addEventListener("click",ouvrirPanier);
   $("panier-fermer").addEventListener("click",function(){ $("dlg-panier").close(); });
   $("cmd-fin").addEventListener("click",function(){ $("dlg-panier").close(); });
+  $("prix-cadeau").textContent="+"+euros(PRIX_EMBALLAGE_CADEAU);
+  $("c-cadeau").addEventListener("change",function(){ rendu(); });
   $("c-recep").addEventListener("change",function(){ $("c-adresse-bloc").hidden = this.value!=="Envoi par la poste"; rendu(); });
 
   function v(id){ return $(id).value.trim(); }
@@ -992,6 +1036,7 @@ input[type=file]{padding:8px;font-size:.92rem}
   function recap(){
     var l=["Bonjour Clem ! Voici ma commande :"].concat(lignesCommande());
     if(port()) l.push("Frais d'expédition (Colissimo, environ "+poidsTexte()+") : "+euros(port()));
+    if(cadeau()) l.push("Emballage cadeau : "+euros(cadeau()));
     l.push("Total : "+euros(total()));
     l.push("Réception : "+v("c-recep")+(v("c-adresse")&&v("c-recep")!=="Retrait"?" – "+v("c-adresse"):""));
     l.push("Nom : "+v("c-nom"));
@@ -1019,7 +1064,7 @@ input[type=file]{padding:8px;font-size:.92rem}
     var champs = {
       "form-name":"commande-boutique", statut:statut, nom:v("c-nom"), email:v("c-email"), telephone:v("c-tel"),
       reception:v("c-recep"), adresse:v("c-recep")==="Retrait"?"":v("c-adresse"), total:euros(total()),
-      commande:numero+"\n"+lignesCommande().join("\n")+(port()?"\n• Frais d'expédition Colissimo, colis d'environ "+poidsTexte()+" ("+euros(port())+")":""), paypal:[lienPaypal,infoPaypal].filter(Boolean).join(" · "), message:v("c-note")
+      commande:numero+"\n"+lignesCommande().join("\n")+(cadeau()?"\n• 🎁 EMBALLAGE CADEAU ("+euros(cadeau())+")":"")+(port()?"\n• Frais d'expédition Colissimo, colis d'environ "+poidsTexte()+" ("+euros(port())+")":""), paypal:[lienPaypal,infoPaypal].filter(Boolean).join(" · "), message:v("c-note")
     };
     var lignesFic=panier.filter(function(l){ return l.fic; });
     if(!lignesFic.length) return fetch("/",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:new URLSearchParams(champs).toString()})
@@ -1067,7 +1112,7 @@ input[type=file]{padding:8px;font-size:.92rem}
         return Promise.resolve(actions.order.create({
           purchase_units:[{
             description:"Commande "+numero+" – "+v("c-nom"), invoice_id:numero,
-            amount:{currency_code:"EUR",value:t,breakdown:{item_total:{currency_code:"EUR",value:sousTotal().toFixed(2)},shipping:{currency_code:"EUR",value:port().toFixed(2)}}},
+            amount:{currency_code:"EUR",value:t,breakdown:{item_total:{currency_code:"EUR",value:sousTotal().toFixed(2)},shipping:{currency_code:"EUR",value:port().toFixed(2)},handling:{currency_code:"EUR",value:cadeau().toFixed(2)}}},
             items:panier.map(function(l){ return {name:produits[l.i].nom.slice(0,120),description:(l.d||"").slice(0,120),quantity:String(l.q),unit_amount:{currency_code:"EUR",value:r2(pu(l)).toFixed(2)},category:"PHYSICAL_GOODS"}; })
           }],
           application_context:{shipping_preference:"NO_SHIPPING",brand_name:"Clem Création"}
