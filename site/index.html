@@ -334,6 +334,14 @@ input[type=file]{padding:8px;font-size:.92rem}
 .contact-liste small{display:block;color:var(--cacao-doux);font-size:.88rem}
 .contact-cta{display:flex;flex-wrap:wrap;gap:10px}
 @media (max-width:760px){.contact-grille{grid-template-columns:1fr;gap:20px}.contact-logo img{width:170px}.contact-liste{grid-template-columns:1fr}.contact{padding:40px 0}}
+.idees-grille li{padding:0}
+.idees-grille li a{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 0;text-decoration:none;color:var(--cacao);min-height:44px;box-sizing:border-box}
+.idees-grille li a span{color:var(--rose);font-weight:800;font-size:1.3rem}
+.idees-grille li a:hover{color:var(--rose)}
+.occasions a{background:var(--rose-pale);color:var(--cacao);padding:8px 16px;border-radius:999px;font-weight:700;font-size:.95rem;text-decoration:none}
+.occasions a:hover{background:var(--rose);color:#fff}
+.idees-cta{margin-top:28px;display:flex;flex-wrap:wrap;gap:14px 24px;align-items:center;justify-content:space-between;background:var(--papier);border:2px dashed var(--rose-pale);border-radius:18px;padding:18px 22px}
+.idees-cta p{margin:0;flex:1 1 320px;font-weight:600}
 </style>
 </head>
 <body>
@@ -451,13 +459,14 @@ input[type=file]{padding:8px;font-size:.92rem}
       <h2 id="t-idees">Et aussi, sur demande</h2>
       <p class="intro">Une liste d'idées pour vous inspirer. Si vous ne trouvez pas votre bonheur, demandez : j'adore les nouveaux projets.</p>
       <div class="idees-grille">
-        <div><h3>Impression 3D</h3><ul><li>Prénoms en relief</li><li>Veilleuses personnalisées</li><li>Porte-clés</li><li>Figurines et déco</li></ul></div>
-        <div><h3>Sublimation</h3><ul><li>Serviettes et capes de bain</li><li>Mugs et tasses</li><li>Gourdes et gobelets</li><li>Tee-shirts et tote bags</li></ul></div>
-        <div><h3>Bois &amp; laser</h3><ul><li>Plaques de porte de chambre</li><li>Boîtes à souvenirs</li><li>Décoration de mariage</li><li>Cadeaux maîtresse</li></ul></div>
+        <div><h3>Impression 3D</h3><ul><li><a href="#sur-mesure" data-idee="Prénoms en relief" data-tech="3d">Prénoms en relief<span aria-hidden="true">›</span></a></li><li><a href="#sur-mesure" data-idee="Veilleuses personnalisées" data-tech="3d">Veilleuses personnalisées<span aria-hidden="true">›</span></a></li><li><a href="#sur-mesure" data-idee="Porte-clés" data-tech="3d">Porte-clés<span aria-hidden="true">›</span></a></li><li><a href="#sur-mesure" data-idee="Figurines et déco" data-tech="3d">Figurines et déco<span aria-hidden="true">›</span></a></li></ul></div>
+        <div><h3>Sublimation</h3><ul><li><a href="#sur-mesure" data-idee="Serviettes et capes de bain" data-tech="sublimation">Serviettes et capes de bain<span aria-hidden="true">›</span></a></li><li><a href="#sur-mesure" data-idee="Mugs et tasses" data-tech="sublimation">Mugs et tasses<span aria-hidden="true">›</span></a></li><li><a href="#sur-mesure" data-idee="Gourdes et gobelets" data-tech="sublimation">Gourdes et gobelets<span aria-hidden="true">›</span></a></li><li><a href="#sur-mesure" data-idee="Tee-shirts et tote bags" data-tech="sublimation">Tee-shirts et tote bags<span aria-hidden="true">›</span></a></li></ul></div>
+        <div><h3>Bois &amp; laser</h3><ul><li><a href="#sur-mesure" data-idee="Plaques de porte de chambre" data-tech="bois">Plaques de porte de chambre<span aria-hidden="true">›</span></a></li><li><a href="#sur-mesure" data-idee="Boîtes à souvenirs" data-tech="bois">Boîtes à souvenirs<span aria-hidden="true">›</span></a></li><li><a href="#sur-mesure" data-idee="Décoration de mariage" data-tech="bois">Décoration de mariage<span aria-hidden="true">›</span></a></li><li><a href="#sur-mesure" data-idee="Cadeaux maîtresse" data-tech="bois">Cadeaux maîtresse<span aria-hidden="true">›</span></a></li></ul></div>
       </div>
-      <div class="occasions" aria-label="Occasions">
-        <span>Naissance</span><span>Baptême</span><span>Anniversaire</span><span>Mariage</span><span>Fête des mères</span><span>Fête des pères</span><span>Fin d'année scolaire</span><span>Noël</span>
+      <div class="occasions" aria-label="Occasions : cliquez pour demander une création">
+        <a href="#sur-mesure" data-occasion="Naissance">Naissance</a><a href="#sur-mesure" data-occasion="Baptême">Baptême</a><a href="#sur-mesure" data-occasion="Anniversaire">Anniversaire</a><a href="#sur-mesure" data-occasion="Mariage">Mariage</a><a href="#sur-mesure" data-occasion="Fête des mères">Fête des mères</a><a href="#sur-mesure" data-occasion="Fête des pères">Fête des pères</a><a href="#sur-mesure" data-occasion="Fin d'année scolaire">Fin d'année scolaire</a><a href="#sur-mesure" data-occasion="Noël">Noël</a>
       </div>
+      <div class="idees-cta"><p>Une idée de cette liste, ou une autre ? Décrivez-la en quelques mots, je vous réponds avec un prix et un délai.</p><a class="btn" href="#sur-mesure" data-idee="">Demander ma création sur mesure</a></div>
     </div>
   </section>
 
@@ -833,6 +842,21 @@ input[type=file]{padding:8px;font-size:.92rem}
     vide.hidden=liste.length>0;
   }
   rendu("tout");
+  // « Et aussi, sur demande » : un clic pré-remplit le formulaire de demande
+  document.querySelector(".idees").addEventListener("click",function(e){
+    var a=e.target.closest("[data-idee],[data-occasion]"); if(!a) return;
+    var fp=document.getElementById("f-produit"), fd=document.getElementById("f-details"), fo=document.getElementById("f-occasion");
+    if(a.dataset.idee){
+      var choix={sublimation:"Autre idée",bois:"Objet en bois gravé","3d":"Création en impression 3D"}, id=a.dataset.idee;
+      if(a.dataset.tech) fp.value=/^Mug/.test(id)?"Mug personnalisé":/^Serviette/.test(id)?"Serviette personnalisée":choix[a.dataset.tech];
+      if(a.dataset.idee) fd.value="Idée : "+a.dataset.idee;
+    }
+    if(a.dataset.occasion){
+      var o=a.dataset.occasion.toLowerCase().slice(0,8);
+      Array.prototype.some.call(fo.options,function(op){ if(op.text.toLowerCase().indexOf(o)===0){ fo.value=op.value||op.text; return true; } });
+    }
+    setTimeout(function(){ document.getElementById("f-prenom").focus({preventScroll:true}); },400);
+  });
   document.querySelectorAll(".filtre").forEach(function(b){
     b.addEventListener("click",function(){
       document.querySelectorAll(".filtre").forEach(function(x){x.setAttribute("aria-pressed","false");});
