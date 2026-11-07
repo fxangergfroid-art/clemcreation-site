@@ -974,6 +974,14 @@ dialog.pz[open]{display:flex;flex-direction:column}
     vide.hidden=liste.length>0;
   }
   rendu("tout");
+  // Statistiques : compte les actions importantes dans GoatCounter (rubrique « Pages », lignes marquées « événement »)
+  window.__suivre=function(chemin,titre){
+    try{
+      var f=function(){ window.goatcounter.count({path:chemin,title:titre||chemin,event:true}); };
+      if(window.goatcounter&&window.goatcounter.count) f(); else setTimeout(function(){ if(window.goatcounter&&window.goatcounter.count) f(); },2500);
+    }catch(e){}
+  };
+  window.__slugS=function(t){ return String(t).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,""); };
   // Lien direct vers un article depuis les pages thèmes : /#produit=nom-de-l-article
   (function(){
     var m=location.hash.match(/^#produit=([a-z0-9-]+)$/); if(!m) return;
@@ -1098,7 +1106,7 @@ dialog.pz[open]{display:flex;flex-direction:column}
       .then(function(r){ return r.ok; }).catch(function(){ return false; });
     netlify.then(function(ok){
       bt.disabled=false;
-      if(ok){ dire("Merci ! Votre demande est bien envoyée à Clem. Elle vous répond très vite par e-mail."); document.getElementById("commande").reset(); }
+      if(ok){ window.__suivre("demande-sur-mesure","✉️ Demande sur mesure envoyée"); dire("Merci ! Votre demande est bien envoyée à Clem. Elle vous répond très vite par e-mail."); document.getElementById("commande").reset(); }
       else { dire("L'envoi n'a pas fonctionné. Écrivez directement à clemcreation@hotmail.fr."); }
     });
   });
@@ -1193,6 +1201,7 @@ dialog.pz[open]{display:flex;flex-direction:column}
     if(p.variantes&&s){ var k=window.__photoChoisie||0; p.variantes.forEach(function(v,j){ if(v.img===k) s.value=j; }); }
     window.__photoChoisie=0;
     $("ajout-err").hidden = true; majAjout(); $("dlg-ajout").showModal();
+    window.__suivre("produit-vu/"+window.__slugS(p.nom),"👀 Produit vu : "+p.nom);
     var f=$("ajout-champs").querySelector("input[data-champ]"); if(f) f.focus();
   };
   function prixBase(){ var p=produits[courant], s=$("a-option"), b=(p.options&&s)?(p.options[+s.value].prix||p.prix):p.prix;
@@ -1237,6 +1246,7 @@ dialog.pz[open]{display:flex;flex-direction:column}
     if(fic) perso=true;
     if(ex) ex.q+=q; else panier.push({i:courant,q:q,d:d,p:prix,perso:perso,multi:multi(),fic:fic,fic2:fic2});
     sauver(); majBouton(); $("dlg-ajout").close();
+    window.__suivre("ajout-panier/"+window.__slugS(p.nom),"🛒 Ajout au panier : "+p.nom);
     if(continuer){ continuer=false; var b=$("bulle-ajout"); b.textContent="✓ "+p.nom+" ajouté au panier"; b.classList.add("on"); clearTimeout(b._t); b._t=setTimeout(function(){ b.classList.remove("on"); },2600); }
     else ouvrirPanier();
   });
@@ -1355,6 +1365,7 @@ dialog.pz[open]{display:flex;flex-direction:column}
   }
   function ouvrirPerso(){
     var p=produits[courant], m=MAQ[p.nom]; if(!m) return;
+    window.__suivre("atelier-ouvert/"+window.__slugS(p.nom),"🎨 Atelier de personnalisation ouvert : "+p.nom);
     alerteP(""); $("pz-nom").textContent=p.nom; persoTotal();
     $("dlg-perso").showModal();
     chargerFabric().then(function(){
@@ -1427,6 +1438,7 @@ dialog.pz[open]{display:flex;flex-direction:column}
     sauver(); majBouton(); rendu();
   });
   function ouvrirPanier(){
+    window.__suivre("panier-ouvert","🧺 Panier ouvert");
     $("cmd-etapes").hidden=false; $("cmd-merci").hidden=true; $("cmd-zone-carte").hidden=true; $("sumup-carte").innerHTML="";
     rendu(); $("cmd-err").hidden=true; $("cmd-toast").classList.remove("on");
     $("dlg-panier").showModal(); chargerPayPal();
@@ -1469,6 +1481,8 @@ dialog.pz[open]{display:flex;flex-direction:column}
 
   // Envoi de la commande complète à Clem via les formulaires Netlify (notification par e-mail)
   function envoyerCommande(statut, lienPaypal, infoPaypal){
+    if(/PAYÉE/.test(statut)) window.__suivre("commande-payee","✅ Commande payée");
+    else window.__suivre("commande-envoyee","📦 Commande envoyée");
     var champs = {
       "form-name":"commande-boutique", statut:statut, nom:v("c-nom"), email:v("c-email"), telephone:v("c-tel"),
       reception:$("c-recep").selectedOptions[0].text, adresse:v("c-recep")==="Retrait"?"":v("c-adresse"), total:euros(total()),
