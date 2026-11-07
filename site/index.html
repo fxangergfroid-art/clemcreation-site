@@ -985,9 +985,9 @@ dialog.pz[open]{display:flex;flex-direction:column}
   // Lien direct vers un article depuis les pages thèmes : /#produit=nom-de-l-article
   (function(){
     var m=location.hash.match(/^#produit=([a-z0-9-]+)$/); if(!m) return;
-    var sl=function(s){ return s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,""); };
+    var sl=function(s){ return s.toLowerCase().normalize("NFD").replace(/[^\x00-\x7f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,""); };
     var i=produits.findIndex(function(p){ return sl(p.nom)===m[1]; }); if(i<0) return;
-    history.replaceState(null,"",location.pathname);
+    history.replaceState(null,"",location.pathname+location.search);
     if(!produits[i].prix){ document.getElementById("f-details").value="Modèle : "+produits[i].nom; document.getElementById("sur-mesure").scrollIntoView(); return; }
     document.getElementById("creations").scrollIntoView();
     setTimeout(function(){ if(window.__ouvrirAjout) window.__ouvrirAjout(i); },300);
