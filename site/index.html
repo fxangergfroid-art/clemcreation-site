@@ -571,7 +571,7 @@ input[type=file]{padding:8px;font-size:.92rem}
           <li><a href="tel:+33668730920"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"></path></svg></span><span><strong>06 68 73 09 20</strong><small>Appel ou SMS</small></span></a></li>
           <li><a href="mailto:clemcreation@hotmail.fr"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="m3 7 9 6 9-6"></path></svg></span><span><strong>clemcreation@hotmail.fr</strong><small>Pour toute question ou commande</small></span></a></li>
           <li><a href="https://www.facebook.com/clemcreation76" target="_blank" rel="noopener"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 8h3V4h-3a4 4 0 0 0-4 4v3H7v4h3v6h4v-6h3l1-4h-4V8z"></path></svg></span><span><strong>Facebook : clemcreation76</strong><small>Nouveautés et coulisses de l'atelier</small></span></a></li>
-          <li><span class="sans-lien"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"></path><circle cx="12" cy="9.5" r="2.5"></circle></svg></span><span><strong>76 · Seine-Maritime</strong><small>Retrait sur place ou envoi Colissimo partout en France</small></span></span></li>
+          <li><span class="sans-lien"><span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"></path><circle cx="12" cy="9.5" r="2.5"></circle></svg></span><span><strong>76 · Seine-Maritime</strong><small>Retrait sur place, envoi Colissimo partout en France, et à l’étranger sur devis</small></span></span></li>
         </ul>
         <div class="contact-cta">
           <a class="btn" href="#sur-mesure">Demander une création</a>
@@ -624,7 +624,7 @@ input[type=file]{padding:8px;font-size:.92rem}
   <div id="cmd-etapes">
   <div id="panier-lignes"></div>
   <div class="ligne-port" id="ligne-port" hidden><span>Frais d'expédition<small id="port-detail"></small></span><span id="panier-port"></span></div>
-  <div class="total"><span>Total</span><span id="panier-total"></span></div>
+  <div class="total"><span id="total-lab">Total</span><span id="panier-total"></span></div>
   <button type="button" class="btn ghost small poursuivre" data-poursuivre>← Poursuivre mes achats</button>
   <p class="aide" style="margin:0">Retrait sur place gratuit. Envoi par Colissimo : frais calculés selon le poids du colis et ajoutés automatiquement au total.</p>
   <p class="promesse-mini" id="promesse-panier" hidden>✏️ Pour vos articles personnalisés, vous recevrez une maquette par e-mail à valider avant la fabrication.</p>
@@ -633,17 +633,19 @@ input[type=file]{padding:8px;font-size:.92rem}
   <div class="champ"><label for="c-nom">Nom et prénom</label><input id="c-nom" autocomplete="name"></div>
   <div class="champ"><label for="c-email">E-mail</label><input id="c-email" type="email" autocomplete="email"></div>
   <div class="champ"><label for="c-tel">Téléphone (facultatif)</label><input id="c-tel" type="tel" autocomplete="tel"></div>
-  <div class="champ"><label for="c-recep">Réception</label><select id="c-recep"><option>Retrait</option><option>Envoi par la poste</option></select></div>
-  <div class="champ" id="c-adresse-bloc" hidden><label for="c-adresse">Adresse de livraison</label><textarea id="c-adresse" autocomplete="street-address" style="min-height:70px"></textarea></div>
+  <div class="champ"><label for="c-recep">Réception</label><select id="c-recep"><option>Retrait</option><option>Envoi par la poste</option><option value="Hors France">Envoi hors France métropolitaine (port sur devis)</option></select></div>
+  <div class="champ" id="c-adresse-bloc" hidden><label for="c-adresse" id="c-adresse-lab">Adresse de livraison</label><textarea id="c-adresse" autocomplete="street-address" style="min-height:70px"></textarea></div>
+  <p class="promesse-mini" id="devis-info" hidden>🌍 <strong>Envoi hors France métropolitaine</strong> (Union européenne, Outre-mer, autres pays) : les frais de port dépendent du pays. Envoyez votre commande sans payer : Clem calcule le port exact (Colissimo international) et vous envoie le montant total avec un lien de paiement. Hors Union européenne, des taxes de douane peuvent être demandées à la réception.</p>
   <div class="champ"><label for="c-note">Message pour Clem (facultatif)</label><input id="c-note"></div>
   <p class="etape-cmd">2. Paiement sécurisé</p>
   <div id="paypal-zone"></div>
+  <button type="button" class="btn" id="cmd-devis" hidden>🌍 Envoyer ma commande (paiement après le devis du port)</button>
   <button type="button" class="btn paypal" id="cmd-payer">Valider ma commande puis payer avec PayPal</button>
   <button type="button" class="btn carte" id="cmd-carte" hidden>💳 Valider ma commande puis payer par carte bancaire</button>
   <p class="aide" style="margin:0">Votre commande est d'abord envoyée à Clem ; le paiement s'ouvre ensuite.</p>
   <p class="erreur" id="cmd-err" hidden></p>
   <div class="toast" id="cmd-toast" role="status" aria-live="polite"></div>
-  <details style="font-size:.95rem"><summary style="cursor:pointer;font-weight:700;color:var(--cacao-doux)">Payer autrement (espèces au retrait, virement)</summary>
+  <details id="payer-autrement" style="font-size:.95rem"><summary style="cursor:pointer;font-weight:700;color:var(--cacao-doux)">Payer autrement (espèces au retrait, virement)</summary>
     <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px">
       <button type="button" class="btn ghost small" id="cmd-hors-ligne">Commander et payer au retrait ou par virement</button>
     </div>
@@ -1042,6 +1044,7 @@ input[type=file]{padding:8px;font-size:.92rem}
   function sousTotal(){ return r2(panier.reduce(function(t,l){ return t + pu(l)*l.q; },0)); }
   function poidsColis(){ return panier.reduce(function(t,l){ return t + (produits[l.i].poids||200)*l.q; },0) + EMBALLAGE; }
   function envoi(){ return panier.length && $("c-recep").value==="Envoi par la poste"; }
+  function horsFrance(){ return $("c-recep").value==="Hors France"; }
   function port(){
     if(!envoi()) return 0;
     var w=poidsColis();
@@ -1163,6 +1166,11 @@ input[type=file]{padding:8px;font-size:.92rem}
     $("port-detail").textContent = envoi() ? "Colissimo · colis d'environ "+poidsTexte()+(poidsColis()>5000?" (au-delà de 5 kg, Clem vous confirmera le prix)":"") : "";
     $("panier-total").textContent = euros(total());
     $("cmd-payer").disabled = !panier.length; if(window.__majCarte) window.__majCarte();
+    var hf=horsFrance();
+    $("devis-info").hidden=!hf; $("cmd-devis").hidden=!hf; $("cmd-devis").disabled=!panier.length;
+    $("cmd-payer").hidden=hf; if(hf) $("cmd-carte").hidden=true; $("payer-autrement").hidden=hf;
+    $("total-lab").textContent = hf ? "Total (hors frais de port)" : "Total";
+    $("c-adresse-lab").textContent = hf ? "Adresse de livraison complète, avec le pays" : "Adresse de livraison";
     $("paypal-zone").hidden = !panier.length;
   }
   $("panier-lignes").addEventListener("click",function(e){
@@ -1182,7 +1190,7 @@ input[type=file]{padding:8px;font-size:.92rem}
   $("cmd-fin").addEventListener("click",function(){ $("dlg-panier").close(); });
   $("prix-cadeau").textContent="+"+euros(PRIX_EMBALLAGE_CADEAU);
   $("c-cadeau").addEventListener("change",function(){ rendu(); });
-  $("c-recep").addEventListener("change",function(){ $("c-adresse-bloc").hidden = this.value!=="Envoi par la poste"; rendu(); });
+  $("c-recep").addEventListener("change",function(){ $("c-adresse-bloc").hidden = this.value==="Retrait"; rendu(); });
 
   function v(id){ return $(id).value.trim(); }
   function lignesCommande(){ return panier.map(function(x){ var p=produits[x.i]; return "• "+x.q+" × "+p.nom+" ("+euros(pu(x)*x.q)+")"+(x.d?" – "+x.d:"")+(x.perso?" ✏️ MAQUETTE À ENVOYER":""); }); }
@@ -1192,7 +1200,7 @@ input[type=file]{padding:8px;font-size:.92rem}
     if(port()) l.push("Frais d'expédition (Colissimo, environ "+poidsTexte()+") : "+euros(port()));
     if(cadeau()) l.push("Emballage cadeau : "+euros(cadeau()));
     l.push("Total : "+euros(total()));
-    l.push("Réception : "+v("c-recep")+(v("c-adresse")&&v("c-recep")!=="Retrait"?" – "+v("c-adresse"):""));
+    l.push("Réception : "+$("c-recep").selectedOptions[0].text+(v("c-adresse")&&v("c-recep")!=="Retrait"?" – "+v("c-adresse"):""));
     l.push("Nom : "+v("c-nom"));
     if(v("c-email")) l.push("E-mail : "+v("c-email"));
     if(v("c-tel")) l.push("Téléphone : "+v("c-tel"));
@@ -1206,7 +1214,7 @@ input[type=file]{padding:8px;font-size:.92rem}
     if(!v("c-nom")) return erreur("Indiquez votre nom pour que Clem retrouve votre commande.","c-nom");
     if(complet){
       if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v("c-email"))) return erreur("Indiquez une adresse e-mail valide pour recevoir la confirmation.","c-email");
-      if(v("c-recep")==="Envoi par la poste" && !v("c-adresse")) return erreur("Indiquez votre adresse de livraison.","c-adresse");
+      if(v("c-recep")!=="Retrait" && !v("c-adresse")) return erreur(v("c-recep")==="Hors France"?"Indiquez votre adresse de livraison complète, avec le pays.":"Indiquez votre adresse de livraison.","c-adresse");
     }
     return true;
   }
@@ -1217,7 +1225,7 @@ input[type=file]{padding:8px;font-size:.92rem}
   function envoyerCommande(statut, lienPaypal, infoPaypal){
     var champs = {
       "form-name":"commande-boutique", statut:statut, nom:v("c-nom"), email:v("c-email"), telephone:v("c-tel"),
-      reception:v("c-recep"), adresse:v("c-recep")==="Retrait"?"":v("c-adresse"), total:euros(total()),
+      reception:$("c-recep").selectedOptions[0].text, adresse:v("c-recep")==="Retrait"?"":v("c-adresse"), total:euros(total()),
       commande:numero+"\n"+lignesCommande().join("\n")+(cadeau()?"\n• 🎁 EMBALLAGE CADEAU ("+euros(cadeau())+")":"")+(port()?"\n• Frais d'expédition Colissimo, colis d'environ "+poidsTexte()+" ("+euros(port())+")":""), paypal:[lienPaypal,infoPaypal].filter(Boolean).join(" · "), message:v("c-note")
     };
     var lignesFic=panier.filter(function(l){ return l.fic; });
@@ -1312,7 +1320,7 @@ input[type=file]{padding:8px;font-size:.92rem}
   // Paiement par carte bancaire avec SumUp (la commande est envoyée à Clem AVANT le paiement)
   var carteActive=false;
   fetch("/api/sumup-config").then(function(r){ return r.ok?r.json():{}; }).then(function(j){ carteActive=!!(j&&j.actif); majCarte(); }).catch(function(){});
-  function majCarte(){ $("cmd-carte").hidden=!carteActive; $("cmd-carte").disabled=!panier.length; }
+  function majCarte(){ $("cmd-carte").hidden=!carteActive || horsFrance(); $("cmd-carte").disabled=!panier.length; }
   window.__majCarte=majCarte;
   function erreurCarte(m){ $("carte-err").textContent=m; $("carte-err").hidden=false; }
   function chargerSumUp(){
@@ -1388,6 +1396,16 @@ input[type=file]{padding:8px;font-size:.92rem}
     envoyerCommande("À RÉGLER HORS LIGNE (espèces au retrait ou virement)").then(function(ok){
       bt.disabled=false;
       if(ok) terminer("Commande n° "+numero+" transmise à Clem.\nElle vous recontacte par e-mail pour le règlement de "+mt+"."+(maq?"\n"+MSG_MAQ:""));
+      else erreur(ERR_ENVOI.replace(", le paiement n'est donc pas ouvert",""));
+    });
+  });
+  // Envoi hors France : commande transmise sans paiement, Clem envoie le devis du port
+  $("cmd-devis").addEventListener("click",function(){
+    if(!infosOk(true)) return;
+    nouveauNumero(); var mt=euros(total()), maq=aPerso(), bt=this; bt.disabled=true;
+    envoyerCommande("🌍 HORS FRANCE – DEVIS DE PORT À ENVOYER au client (articles : "+mt+" hors port), puis lien de paiement").then(function(ok){
+      bt.disabled=false;
+      if(ok) terminer("Commande n° "+numero+" transmise à Clem.\nElle calcule les frais d'envoi vers votre pays et vous envoie par e-mail le montant total ("+mt+" + port) avec un lien de paiement."+(maq?"\n"+MSG_MAQ:""));
       else erreur(ERR_ENVOI.replace(", le paiement n'est donc pas ouvert",""));
     });
   });
