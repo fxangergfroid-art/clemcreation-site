@@ -381,6 +381,40 @@ input[type=file]{padding:8px;font-size:.92rem}
 .occ span{position:absolute;left:0;right:0;bottom:0;padding:26px 12px 10px;background:linear-gradient(transparent,rgba(30,18,14,.78));color:#fff;font:800 1.1rem/1.15 "Baloo 2",sans-serif}
 @media (max-width:900px){.atouts{grid-template-columns:1fr 1fr}.occ-grille{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:640px){.atouts{gap:8px}.atouts li{padding:9px 10px;gap:8px}.atout-ic{flex-basis:34px;width:34px;height:34px}.atouts strong{font-size:.84rem}.atouts small{display:none}.occ span{font-size:.95rem}.occasions-band{padding:24px 0 4px}}
+.pz-appel{display:flex;flex-direction:column;gap:4px;padding:12px;border:2px dashed var(--rose);border-radius:14px;background:var(--rose-pale)}
+.pz-appel .btn{justify-content:center}
+.pz-appel small{color:var(--cacao-doux);font-size:.86rem;text-align:center}
+dialog.pz{width:100vw;height:100dvh;max-width:none;max-height:none;margin:0;border-radius:0;padding:0;background:var(--fond)}
+dialog.pz[open]{display:flex;flex-direction:column}
+.pz-tete{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 18px;border-bottom:1px solid var(--trait);background:var(--papier);flex-wrap:wrap}
+.pz-tete h3{font-size:1.25rem}.pz-tete h3 span{display:block;font:600 .9rem "Nunito",sans-serif;color:var(--cacao-doux)}
+.pz-tete-d{display:flex;align-items:center;gap:12px}.pz-total strong{color:var(--rose);font-size:1.3rem}
+.pz-corps{flex:1;display:grid;grid-template-columns:240px 1fr 260px;min-height:0}
+.pz-g,.pz-d{padding:16px;overflow:auto;background:var(--papier)}.pz-g{border-right:1px solid var(--trait)}.pz-d{border-left:1px solid var(--trait)}
+.pz-sect{font:800 .78rem "Nunito",sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--cacao-doux);margin:6px 0 8px}
+.pz-ajouts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.pz-b{font:700 .95rem "Nunito",sans-serif;padding:12px 8px;border:2px solid var(--trait);border-radius:12px;background:var(--fond);cursor:pointer;color:var(--cacao);min-height:44px}
+.pz-b:hover{border-color:var(--rose)}
+.pz-elements{display:flex;flex-direction:column;gap:6px}
+.pz-el{text-align:left;font:600 .92rem "Nunito",sans-serif;padding:8px 10px;border:1px solid var(--trait);border-radius:10px;background:var(--fond);cursor:pointer;color:var(--cacao)}
+.pz-el.actif{border-color:var(--rose);background:var(--rose-pale)}
+.pz-astuce{font-size:.82rem}
+.pz-scene{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px;min-height:0;overflow:hidden;background:#f5ece6}
+#pz-canvas-box canvas{border-radius:14px;box-shadow:0 8px 24px var(--ombre)}
+.pz-lab{display:block;font-weight:700;font-size:.9rem;margin:12px 0 4px}
+#pz-reglages textarea,#pz-reglages select{width:100%}
+#pz-reglages input[type=range]{width:100%;accent-color:var(--rose)}
+.pz-couleurs{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.pz-couleurs button{width:28px;height:28px;border-radius:50%;border:2px solid var(--trait);cursor:pointer;padding:0}
+.pz-couleurs button.actif{outline:3px solid var(--rose);outline-offset:1px}
+.pz-couleurs input[type=color]{width:34px;height:30px;padding:0;border:none;background:none}
+.pz-check{display:flex;gap:8px;align-items:center;margin-top:12px;font-weight:600}
+.pz-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px}.pz-suppr{color:#b3261e;border-color:#e3b9b6}
+@media (max-width:860px){
+  .pz-corps{grid-template-columns:1fr;grid-template-rows:auto minmax(260px,1fr) auto;overflow:auto}
+  .pz-g{order:2;border-right:none;border-top:1px solid var(--trait);padding:10px 14px}.pz-scene{order:1;min-height:300px}.pz-d{order:3;border-left:none;border-top:1px solid var(--trait);padding:10px 14px}
+  .pz-astuce{display:none}.pz-tete h3{font-size:1.05rem}.pz-ajouts{margin-bottom:8px}
+}
 </style>
 </head>
 <body>
@@ -647,6 +681,22 @@ input[type=file]{padding:8px;font-size:.92rem}
     <button type="button" class="btn ghost" id="ajout-continuer">Ajouter et poursuivre mes achats</button>
   </div>
 </form></dialog>
+<dialog id="dlg-perso" class="pz" aria-labelledby="pz-titre">
+  <div class="pz-tete"><h3 id="pz-titre">Personnalisez votre article <span id="pz-nom"></span></h3>
+    <div class="pz-tete-d"><span class="pz-total">Total : <strong id="pz-total"></strong></span><button type="button" class="btn" id="pz-terminer">Terminer</button><button type="button" class="fermer" id="pz-fermer" aria-label="Fermer l’atelier">×</button></div></div>
+  <div class="pz-corps">
+    <div class="pz-g">
+      <p class="pz-sect">Ajouter</p>
+      <div class="pz-ajouts"><button type="button" class="pz-b" id="pz-texte-btn">✏️ Texte</button><button type="button" class="pz-b" id="pz-photo-btn">📷 Photo</button></div>
+      <input type="file" id="pz-photo" accept="image/*" hidden>
+      <p class="pz-sect">Éléments</p>
+      <div id="pz-elements" class="pz-elements"></div>
+      <p class="aide pz-astuce">Astuce : faites glisser un élément pour le déplacer, tirez sur ses coins pour l’agrandir. Seule la zone en pointillés est imprimée.</p>
+    </div>
+    <div class="pz-scene" id="pz-scene"><div id="pz-canvas-box"></div><p class="erreur" id="pz-err" hidden></p></div>
+    <div class="pz-d"><p class="pz-sect">Réglages</p><div id="pz-reglages"></div></div>
+  </div>
+</dialog>
 <div class="bulle-ajout" id="bulle-ajout" role="status" aria-live="polite"></div>
 
 <dialog id="dlg-panier" aria-labelledby="panier-titre"><div class="dlg">
@@ -1131,6 +1181,12 @@ input[type=file]{padding:8px;font-size:.92rem}
       return '<div class="champ"><label for="a-'+c.id+'">'+esc(c.label)+'</label><input id="a-'+c.id+'" data-champ="'+c.id+'" data-label="'+esc(c.label)+'"'+(c.requis?' required':'')+'></div>';
     }).join("") + (aFichier(p)?'<div class="champ"><label for="a-fichier">'+libFichier(p)+'</label><input id="a-fichier" type="file" accept="image/*,application/pdf"><small class="aide" style="margin:2px 0 0">JPG, PNG ou PDF. Facultatif : vous pouvez aussi l\'envoyer plus tard par e-mail.</small><div class="fichier-apercu" id="a-fichier-apercu" hidden></div></div>':'');
     if($("a-fichier")) $("a-fichier").addEventListener("change",apercuFichier);
+    if(window.__aPerso3 && window.__aPerso3(p)){
+      var bz=document.createElement("div"); bz.className="pz-appel";
+      bz.innerHTML='<button type="button" class="btn" id="pz-ouvrir">🎨 Personnaliser avec l\u2019aperçu</button><small>Ajoutez votre photo et votre texte, et voyez le résultat sur l\u2019objet.</small>';
+      $("ajout-champs").insertBefore(bz,$("ajout-champs").firstChild);
+      $("pz-ouvrir").addEventListener("click",function(){ window.__ouvrirPerso(); });
+    }
     $("ajout-dims").textContent = p.dims ? "📏 "+p.dims : "";
     $("ajout-desc").textContent = p.desc || "";
     var s=$("a-option");
@@ -1163,7 +1219,12 @@ input[type=file]{padding:8px;font-size:.92rem}
       if(v) details.push(inp.dataset.label.replace(/ \(facultatif\)/,"")+" : "+v);
     });
     if(manque){ $("ajout-err").textContent="Indiquez « "+manque.dataset.label+" » (ou ajoutez une image) pour personnaliser votre création."; $("ajout-err").hidden=false; manque.focus(); return; }
-    var fic=null; if(ficChoisi){ nbFic++; fic={id:"f"+Date.now()+nbFic,nom:ficChoisi.name}; FICHIERS[fic.id]=ficChoisi; details.push("Image : "+ficChoisi.name); }
+    var fic=null, fic2=null, rp=(PZ.resultat&&PZ.resultat.pour===courant)?PZ.resultat:null; PZ.resultat=null;
+    if(rp){ nbFic++; fic={id:"f"+Date.now()+nbFic,nom:rp.apercu.name}; FICHIERS[fic.id]=rp.apercu; details.push("Aperçu personnalisé joint");
+      rp.textes.forEach(function(x){ details.push("Texte : "+x); });
+      if(rp.photo){ nbFic++; fic2={id:"f"+Date.now()+nbFic,nom:rp.photo.name}; FICHIERS[fic2.id]=rp.photo; details.push("Photo : "+rp.photo.name); }
+      ficChoisi=null; }
+    if(ficChoisi){ nbFic++; fic={id:"f"+Date.now()+nbFic,nom:ficChoisi.name}; FICHIERS[fic.id]=ficChoisi; details.push("Image : "+ficChoisi.name); }
     var p=produits[courant];
     (p.champs||[]).forEach(function(c){ if(c.type==="note" && !(aFichier(p)&&c.id==="photo")) details.push(c.label); });
     var s=$("a-option"); if(p.options&&s) details.unshift((p.variantes?"Modèle : ":"")+p.options[+s.value].label);
@@ -1174,11 +1235,165 @@ input[type=file]{padding:8px;font-size:.92rem}
       return inp.value.trim() && (["prenom","texte","theme"].indexOf(inp.dataset.champ)>=0 || /prénom/i.test(inp.dataset.label));
     });
     if(fic) perso=true;
-    if(ex) ex.q+=q; else panier.push({i:courant,q:q,d:d,p:prix,perso:perso,multi:multi(),fic:fic});
+    if(ex) ex.q+=q; else panier.push({i:courant,q:q,d:d,p:prix,perso:perso,multi:multi(),fic:fic,fic2:fic2});
     sauver(); majBouton(); $("dlg-ajout").close();
     if(continuer){ continuer=false; var b=$("bulle-ajout"); b.textContent="✓ "+p.nom+" ajouté au panier"; b.classList.add("on"); clearTimeout(b._t); b._t=setTimeout(function(){ b.classList.remove("on"); },2600); }
     else ouvrirPanier();
   });
+  // ===== Atelier de personnalisation avec aperçu (articles en sublimation) =====
+  // Formes des objets : coordonnées sur une toile de 600 × 600
+  var MAQ={
+    "Mug personnalisé 330 ml":{f:"mug",z:{x:170,y:185,w:250,h:250}},
+    "Tasse personnalisée 150 ml":{f:"tasse",z:{x:195,y:235,w:200,h:180}},
+    "Gourde personnalisée 750 ml":{f:"gourde",z:{x:235,y:210,w:130,h:280}},
+    "Plaque photo en aluminium":{f:"plaque",z:{x:105,y:165,w:390,h:270}},
+    "Puzzle photo personnalisé":{f:"puzzle",z:{x:95,y:160,w:410,h:290}},
+    "Aimant photo":{f:"aimant",z:{x:180,y:180,w:240,h:240}},
+    "Serviette personnalisée":{f:"serviette",z:{x:180,y:300,w:240,h:150}},
+    "Pochette personnalisée":{f:"pochette",z:{x:150,y:215,w:300,h:190}},
+    "Porte-clé personnalisé":{f:"porte-cle",z:{x:225,y:225,w:150,h:200}},
+    "Jeton de caddie":{f:"rond",z:{x:200,y:200,w:200,h:200,rond:1}},
+    "Élastique à cheveux":{f:"rond",z:{x:215,y:215,w:170,h:170,rond:1}},
+    "Marque-page imprimé":{f:"marque-page",z:{x:250,y:95,w:100,h:410}}
+  };
+  window.__aPerso3=function(p){ return !!MAQ[p.nom]; };
+  var PZ={ c:null, zone:null, guide:null, photos:[], resultat:null, charge:null };
+  var POLICES=[["Nunito","Simple"],["Baloo 2","Arrondie"],["Caveat","Manuscrite"],["Georgia","Classique"]];
+  var COULEURS=["#3A2720","#FFFFFF","#C4566B","#E2A33A","#2F5D50","#3B6EA8","#7A4CA0","#111111"];
+  function chargerFabric(){
+    if(window.fabric) return Promise.resolve();
+    if(PZ.charge) return PZ.charge;
+    PZ.charge=new Promise(function(ok,ko){ var s=document.createElement("script"); s.src="/js/fabric-5.3.0.min.js"; s.onload=ok; s.onerror=ko; document.head.appendChild(s); });
+    return PZ.charge;
+  }
+  function dessinerObjet(c,m){
+    var F=fabric, gris="#cfc4bf", fond="#ffffff", ns={selectable:false,evented:false}, o=[], z=m.z;
+    function R(x,y,w,h,r,extra){ return new F.Rect(Object.assign({left:x,top:y,width:w,height:h,rx:r||0,ry:r||0,fill:fond,stroke:gris,strokeWidth:2},ns,extra||{})); }
+    switch(m.f){
+      case "mug": o.push(new F.Circle(Object.assign({left:395,top:230,radius:62,fill:"",stroke:gris,strokeWidth:26},ns))); o.push(new F.Circle(Object.assign({left:395,top:230,radius:62,fill:"",stroke:fond,strokeWidth:22},ns))); o.push(R(150,160,290,300,14)); o.push(new F.Ellipse(Object.assign({left:150,top:148,rx:145,ry:16,fill:"#f3efed",stroke:gris,strokeWidth:2},ns))); break;
+      case "tasse": o.push(new F.Circle(Object.assign({left:372,top:268,radius:48,fill:"",stroke:gris,strokeWidth:22},ns))); o.push(new F.Circle(Object.assign({left:372,top:268,radius:48,fill:"",stroke:fond,strokeWidth:18},ns))); o.push(R(180,215,230,220,16)); o.push(new F.Ellipse(Object.assign({left:180,top:204,rx:115,ry:13,fill:"#f3efed",stroke:gris,strokeWidth:2},ns))); break;
+      case "gourde": o.push(R(270,60,60,50,10,{fill:"#e9e3e0"})); o.push(R(255,100,90,40,14)); o.push(R(220,130,160,400,50)); break;
+      case "plaque": o.push(R(z.x-12,z.y-12,z.w+24,z.h+24,10,{fill:"#eceff1"})); break;
+      case "puzzle": o.push(R(z.x-6,z.y-6,z.w+12,z.h+12,4)); break;
+      case "aimant": o.push(R(z.x-10,z.y-10,z.w+20,z.h+20,18)); break;
+      case "serviette": o.push(R(110,110,380,380,6)); for(var i=0;i<19;i++){ o.push(new F.Line([120+i*20,490,120+i*20,512],Object.assign({stroke:gris,strokeWidth:3},ns))); } break;
+      case "pochette": o.push(R(130,190,340,240,22)); o.push(new F.Line([150,203,450,203],Object.assign({stroke:"#9b8f8a",strokeWidth:4,strokeDashArray:[6,4]},ns))); o.push(R(440,190,22,40,6,{fill:"#9b8f8a"})); break;
+      case "porte-cle": o.push(new F.Circle(Object.assign({left:272,top:120,radius:28,fill:"",stroke:"#9aa0a6",strokeWidth:6},ns))); o.push(R(285,170,30,40,6,{fill:"#e9e3e0"})); o.push(R(210,205,180,240,26)); break;
+      case "rond": o.push(new F.Circle(Object.assign({left:z.x-12,top:z.y-12,radius:z.w/2+12,fill:fond,stroke:gris,strokeWidth:2},ns))); break;
+      case "marque-page": o.push(R(z.x-12,z.y-12,z.w+24,z.h+24,8)); o.push(new F.Circle(Object.assign({left:291,top:96,radius:9,fill:"#f3efed",stroke:gris,strokeWidth:2},ns))); break;
+    }
+    o.forEach(function(x){ c.add(x); });
+    var clip = z.rond ? new F.Circle({left:z.x,top:z.y,radius:z.w/2,absolutePositioned:true}) : new F.Rect({left:z.x,top:z.y,width:z.w,height:z.h,absolutePositioned:true});
+    PZ.zone=clip;
+    PZ.guide = z.rond ? new F.Circle(Object.assign({left:z.x,top:z.y,radius:z.w/2,fill:"",stroke:"#D4A72C",strokeWidth:2,strokeDashArray:[8,6]},ns)) : new F.Rect(Object.assign({left:z.x,top:z.y,width:z.w,height:z.h,fill:"",stroke:"#D4A72C",strokeWidth:2,strokeDashArray:[8,6]},ns));
+    c.add(PZ.guide);
+  }
+  function persoTotal(){ $("pz-total").textContent=euros(prixCourant()*q); }
+  function elements(){ return PZ.c ? PZ.c.getObjects().filter(function(o){ return o.__el; }) : []; }
+  function majListe(){
+    var el=elements(), sel=PZ.c.getActiveObject();
+    $("pz-elements").innerHTML = el.length ? el.map(function(o,k){ return '<button type="button" class="pz-el'+(o===sel?' actif':'')+'" data-el="'+k+'">'+(o.type==="textbox"?"✏️ "+esc((o.text||"").slice(0,22)||"Texte"):"🖼️ Photo")+'</button>'; }).join("") : '<p class="aide" style="margin:0">Aucun élément pour l’instant.</p>';
+    majReglages();
+  }
+  function majReglages(){
+    var o=PZ.c.getActiveObject(), r=$("pz-reglages");
+    if(!o||!o.__el){ r.innerHTML='<p class="aide">Sélectionnez un élément pour le modifier, ou ajoutez un texte ou une photo.</p>'; return; }
+    var h="";
+    if(o.type==="textbox"){
+      h+='<label class="pz-lab" for="pz-texte">Texte</label><textarea id="pz-texte" rows="2">'+esc(o.text)+'</textarea>';
+      h+='<label class="pz-lab" for="pz-police">Police</label><select id="pz-police">'+POLICES.map(function(pp){ return '<option value="'+pp[0]+'"'+(o.fontFamily===pp[0]?' selected':'')+'>'+pp[1]+'</option>'; }).join("")+'</select>';
+      h+='<label class="pz-lab" for="pz-taille">Taille</label><input type="range" id="pz-taille" min="14" max="120" value="'+Math.round(o.fontSize)+'">';
+      h+='<span class="pz-lab">Couleur</span><div class="pz-couleurs">'+COULEURS.map(function(cc){ return '<button type="button" data-couleur="'+cc+'" aria-label="Couleur '+cc+'" style="background:'+cc+'"'+(o.fill===cc?' class="actif"':'')+'></button>'; }).join("")+'<input type="color" id="pz-couleur" value="'+(/^#/.test(o.fill)?o.fill:"#3A2720")+'" aria-label="Autre couleur"></div>';
+      h+='<label class="pz-check"><input type="checkbox" id="pz-gras"'+(o.fontWeight==="bold"||o.fontWeight==800?' checked':'')+'> Gras</label>';
+    } else {
+      h+='<label class="pz-lab" for="pz-echelle">Taille de la photo</label><input type="range" id="pz-echelle" min="5" max="300" value="'+Math.round(o.scaleX*100/(o.__base||1))+'">';
+    }
+    h+='<label class="pz-lab" for="pz-rot">Rotation</label><input type="range" id="pz-rot" min="-180" max="180" value="'+Math.round(o.angle>180?o.angle-360:o.angle)+'">';
+    h+='<div class="pz-actions"><button type="button" class="btn ghost small" id="pz-centrer">Centrer</button><button type="button" class="btn ghost small" id="pz-devant">Mettre devant</button><button type="button" class="btn ghost small pz-suppr" id="pz-suppr">Supprimer</button></div>';
+    r.innerHTML=h;
+    var c=PZ.c, rr=function(){ c.requestRenderAll(); };
+    if(o.type==="textbox"){
+      $("pz-texte").addEventListener("input",function(){ o.set("text",this.value); rr(); majListeSansReglages(); });
+      $("pz-police").addEventListener("change",function(){ o.set("fontFamily",this.value); rr(); });
+      $("pz-taille").addEventListener("input",function(){ o.set("fontSize",+this.value); rr(); });
+      r.querySelectorAll("[data-couleur]").forEach(function(b){ b.addEventListener("click",function(){ o.set("fill",b.dataset.couleur); rr(); majReglages(); }); });
+      $("pz-couleur").addEventListener("input",function(){ o.set("fill",this.value); rr(); });
+      $("pz-gras").addEventListener("change",function(){ o.set("fontWeight",this.checked?"bold":"normal"); rr(); });
+    } else {
+      $("pz-echelle").addEventListener("input",function(){ var s=(o.__base||1)*this.value/100; o.scale(s); o.setCoords(); rr(); });
+    }
+    $("pz-rot").addEventListener("input",function(){ o.rotate(+this.value); o.setCoords(); rr(); });
+    $("pz-centrer").addEventListener("click",function(){ var z=PZ.zone; o.set({originX:"center",originY:"center",left:z.left+(z.width||z.radius*2)/2,top:z.top+(z.height||z.radius*2)/2}); o.setCoords(); rr(); });
+    $("pz-devant").addEventListener("click",function(){ o.bringToFront(); PZ.guide.bringToFront(); rr(); });
+    $("pz-suppr").addEventListener("click",function(){ c.remove(o); PZ.photos=PZ.photos.filter(function(x){ return x.obj!==o; }); c.discardActiveObject(); rr(); majListe(); });
+  }
+  function majListeSansReglages(){ var el=elements(), sel=PZ.c.getActiveObject(); $("pz-elements").querySelectorAll("[data-el]").forEach(function(b,k){ var o=el[k]; if(o&&o.type==="textbox") b.textContent="✏️ "+((o.text||"").slice(0,22)||"Texte"); b.classList.toggle("actif",o===sel); }); }
+  function centreZone(){ var z=PZ.zone; return {x:z.left+(z.width||z.radius*2)/2, y:z.top+(z.height||z.radius*2)/2, w:(z.width||z.radius*2), h:(z.height||z.radius*2)}; }
+  function ajouterTexte(){
+    var cz=centreZone(), t=new fabric.Textbox("Votre texte",{originX:"center",originY:"center",left:cz.x,top:cz.y,width:Math.min(cz.w-10,240),fontSize:Math.max(18,Math.round(cz.h/7)),fontFamily:"Baloo 2",fontWeight:"bold",fill:"#3A2720",textAlign:"center",clipPath:PZ.zone,cornerColor:"#C4566B",borderColor:"#C4566B",transparentCorners:false,cornerSize:14});
+    t.__el=1; PZ.c.add(t); PZ.guide.bringToFront(); PZ.c.setActiveObject(t); PZ.c.requestRenderAll(); majListe();
+  }
+  function ajouterPhoto(fichier){
+    if(!fichier) return;
+    if(!/^image\//.test(fichier.type)){ alerteP("Choisissez une image (JPG, PNG…)."); return; }
+    window.__alleger(fichier).then(function(f){
+      var url=URL.createObjectURL(f.blob);
+      fabric.Image.fromURL(url,function(img){
+        var cz=centreZone(), s=Math.max(cz.w/img.width, cz.h/img.height);
+        img.set({originX:"center",originY:"center",left:cz.x,top:cz.y,clipPath:PZ.zone,cornerColor:"#C4566B",borderColor:"#C4566B",transparentCorners:false,cornerSize:14});
+        img.scale(s); img.__base=s; img.__el=1;
+        PZ.c.add(img); var txt=elements().filter(function(o){ return o.type==="textbox"; }); txt.forEach(function(o){ o.bringToFront(); }); PZ.guide.bringToFront();
+        PZ.c.setActiveObject(img); PZ.c.requestRenderAll();
+        PZ.photos.push({obj:img,fichier:fichier}); majListe();
+      });
+    });
+  }
+  function alerteP(m){ var e=$("pz-err"); e.textContent=m; e.hidden=!m; }
+  function ajusterTaille(){
+    var box=$("pz-scene"), w=Math.min(box.clientWidth-16, box.clientHeight-16, 600); if(w<200) w=Math.min(box.clientWidth-16,600);
+    PZ.c.setDimensions({width:w,height:w}); PZ.c.setZoom(w/600); PZ.c.requestRenderAll();
+  }
+  function ouvrirPerso(){
+    var p=produits[courant], m=MAQ[p.nom]; if(!m) return;
+    alerteP(""); $("pz-nom").textContent=p.nom; persoTotal();
+    $("dlg-perso").showModal();
+    chargerFabric().then(function(){
+      if(PZ.c && PZ.pour===p.nom){ ajusterTaille(); majListe(); return; }
+      if(PZ.c){ PZ.c.dispose(); }
+      $("pz-canvas-box").innerHTML='<canvas id="pz-canvas" width="600" height="600"></canvas>';
+      var c=new fabric.Canvas("pz-canvas",{backgroundColor:"#ffffff",preserveObjectStacking:true,selection:false});
+      PZ.c=c; PZ.pour=p.nom; PZ.photos=[];
+      dessinerObjet(c,m); ajusterTaille();
+      c.on("selection:created",majListe); c.on("selection:updated",majListe); c.on("selection:cleared",majListe);
+      c.on("object:modified",function(){ majReglages(); });
+      majListe();
+    }).catch(function(){ alerteP("L’atelier n’a pas pu se charger. Vérifiez votre connexion, ou envoyez simplement votre photo avec le bouton « Image » de la fenêtre précédente."); });
+  }
+  function terminerPerso(){
+    var c=PZ.c; if(!c) return;
+    if(!elements().length){ alerteP("Ajoutez au moins un texte ou une photo, ou fermez l’atelier pour commander sans aperçu."); return; }
+    c.discardActiveObject(); PZ.guide.set("visible",false); c.requestRenderAll();
+    var data=c.toDataURL({format:"png",multiplier:2*600/c.getWidth()});
+    PZ.guide.set("visible",true); c.requestRenderAll();
+    fetch(data).then(function(r){ return r.blob(); }).then(function(b){
+      var textes=elements().filter(function(o){ return o.type==="textbox" && o.text.trim(); }).map(function(o){
+        var pol=(POLICES.find(function(pp){ return pp[0]===o.fontFamily; })||[0,o.fontFamily])[1];
+        var NOMS={"#3A2720":"marron","#FFFFFF":"blanc","#C4566B":"rose","#E2A33A":"doré","#2F5D50":"vert sapin","#3B6EA8":"bleu","#7A4CA0":"violet","#111111":"noir"};
+        return "« "+o.text.trim().replace(/\n/g," / ")+" » ("+pol+", "+(NOMS[(o.fill||"").toUpperCase()]||("couleur "+o.fill))+(o.fontWeight==="bold"?", gras":"")+")";
+      });
+      PZ.resultat={pour:courant, apercu:new File([b],"apercu-"+produits[courant].nom.toLowerCase().normalize("NFD").replace(/[^a-z0-9]+/g,"-")+".png",{type:"image/png"}), photo:(PZ.photos[0]||{}).fichier||null, textes:textes};
+      $("dlg-perso").close();
+      $("ajout-ok").click();
+    });
+  }
+  $("pz-texte-btn").addEventListener("click",function(){ if(PZ.c) ajouterTexte(); });
+  $("pz-photo-btn").addEventListener("click",function(){ if(PZ.c) $("pz-photo").click(); });
+  $("pz-photo").addEventListener("change",function(){ ajouterPhoto(this.files[0]); this.value=""; });
+  $("pz-elements").addEventListener("click",function(e){ var b=e.target.closest("[data-el]"); if(!b) return; var o=elements()[+b.dataset.el]; if(o){ PZ.c.setActiveObject(o); PZ.c.requestRenderAll(); majListe(); } });
+  $("pz-fermer").addEventListener("click",function(){ $("dlg-perso").close(); });
+  $("pz-terminer").addEventListener("click",terminerPerso);
+  window.addEventListener("resize",function(){ if(PZ.c && $("dlg-perso").open) ajusterTaille(); });
+  window.__ouvrirPerso=ouvrirPerso;
   var continuer=false;
   $("ajout-continuer").addEventListener("click",function(){ continuer=true; $("ajout-ok").click(); continuer=false; });
   document.querySelectorAll("[data-poursuivre]").forEach(function(b){ b.addEventListener("click",function(){ $("dlg-panier").close(); }); });
@@ -1259,7 +1474,7 @@ input[type=file]{padding:8px;font-size:.92rem}
       reception:$("c-recep").selectedOptions[0].text, adresse:v("c-recep")==="Retrait"?"":v("c-adresse"), total:euros(total()),
       commande:numero+"\n"+lignesCommande().join("\n")+(cadeau()?"\n• 🎁 EMBALLAGE CADEAU ("+euros(cadeau())+")":"")+(port()?"\n• Frais d'expédition Colissimo, colis d'environ "+poidsTexte()+" ("+euros(port())+")":""), paypal:[lienPaypal,infoPaypal].filter(Boolean).join(" · "), message:v("c-note")
     };
-    var lignesFic=panier.filter(function(l){ return l.fic; });
+    var lignesFic=[]; panier.forEach(function(l){ if(l.fic) lignesFic.push({i:l.i,fic:l.fic}); if(l.fic2) lignesFic.push({i:l.i,fic:l.fic2}); });
     if(!lignesFic.length) return fetch("/",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:new URLSearchParams(champs).toString()})
       .then(function(r){ return r.ok; }).catch(function(){ return false; });
     // Avec images : envoi en plusieurs parties (5 images maximum, 7 Mo au total)
